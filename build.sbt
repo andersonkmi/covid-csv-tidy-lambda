@@ -1,26 +1,33 @@
-import Dependencies._
+import sbtassembly.Log4j2MergeStrategy
+import sbtrelease.Version
 
-val appVersion = "1.0.0"
+name := "covid-csv-tidy-lambda"
 
-val appName = "covid-csv-tidy-lambda"
+resolvers += Resolver.sonatypeRepo("public")
+scalaVersion := "2.13.1"
+releaseNextVersion := { ver =>
+  Version(ver).map(_.bumpMinor.string).getOrElse("Error")
+}
+assemblyJarName in assembly := "hello.jar"
 
-lazy val root = (project in file(".")).
-  settings(
-    inThisBuild(List(
-      organization := "org.codecraftlabs",
-      scalaVersion := "2.13.2",
-      version      := appVersion
-    )),
-    name := appName,
-    assemblyJarName in assembly := appName + "-" + appVersion + ".jar",
-    libraryDependencies += scalaTest % Test,
-    libraryDependencies += scalacticTest % Test,
-    libraryDependencies += "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
-    libraryDependencies += "com.amazonaws" % "aws-lambda-java-events" % "2.0.1",
-    libraryDependencies += "com.amazonaws" % "aws-java-sdk-core" % "1.11.804",
-    libraryDependencies += "com.amazonaws" % "aws-java-sdk-s3" % "1.11.804",
-    libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.9",
-    libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.9",
-    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
-    libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
-  )
+libraryDependencies ++= Seq(
+  "com.amazonaws" % "aws-lambda-java-events" % "2.2.7",
+  "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
+  "com.amazonaws" % "aws-lambda-java-log4j2" % "1.1.0",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.804",
+)
+
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-Xfatal-warnings"
+)
+
+assemblyMergeStrategy in assembly := {
+  case PathList(ps @ _*) if ps.last == "Log4j2Plugins.dat" =>
+    Log4j2MergeStrategy.plugincache
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
