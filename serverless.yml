@@ -23,6 +23,10 @@ service: covid-csv-tidy-lambda
 provider:
   name: aws
   runtime: java8
+  deploymentBucket:
+    name: org.codecraftlabs.serverless
+    maxPreviousDeploymentArtifacts: 10
+    blockPublicAccess: true
 
 # you can overwrite defaults here
 #  stage: dev
