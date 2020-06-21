@@ -22,7 +22,7 @@ service: covid-csv-tidy-lambda
 
 provider:
   name: aws
-  runtime: java8
+  runtime: java11
   deploymentBucket:
     name: org.codecraftlabs.serverless
     maxPreviousDeploymentArtifacts: 10
