@@ -28,8 +28,6 @@ provider:
     maxPreviousDeploymentArtifacts: 10
     blockPublicAccess: true
   role: arn:aws:iam::970221509170:role/aws-lambda-execution-role
-  stage: dev
-  region: us-east-1
 
 # you can add packaging information here
 # Make sure to run "sbt assembly" to create a jar file
