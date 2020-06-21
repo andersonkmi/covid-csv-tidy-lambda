@@ -59,8 +59,8 @@ package:
   artifact: target/scala-2.13/covid-csv-tidy-lambda.jar
 
 functions:
-  hello:
-    handler: hello.Handler
+  aries:
+    handler: org.codecraftlabs.aries.Main
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
