@@ -19,7 +19,7 @@ object S3ObjectProcessor {
   private val DeathsColumnNames = List("Deaths")
   private val RecoveredColumnNames = List("Recovered")
 
-  def readObject(bucket: String, key: String): List[String] = {
+  def readObject(bucket: String, key: String): List[CovidRecord] = {
     logger.info("Starting S3 object processing")
 
     val s3object = s3Service.getObject(new GetObjectRequest(bucket, key))
@@ -27,7 +27,7 @@ object S3ObjectProcessor {
     val reader = new BufferedReader(new InputStreamReader(s3ObjectInputStream))
     var line: String = null
 
-    var lineNumber: Int = 0;
+    var lineNumber: Int = 0
     var countryColPosition: Int = 0
     var lastUpdateColPosition: Int = 0
     var confirmedColPosition: Int = 0
@@ -36,7 +36,7 @@ object S3ObjectProcessor {
 
     var clear: Boolean = true
 
-    val processedLines: ListBuffer[String] = ListBuffer()
+    val processedLines: ListBuffer[CovidRecord] = ListBuffer()
 
     while ({line = reader.readLine; line != null && clear}) {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
@@ -66,9 +66,9 @@ object S3ObjectProcessor {
         val deaths = tokens(deathsColPosition)
         val recovered = tokens(recoveredColPosition)
 
-        val allValues = Array(countryName, lastUpdate, confirmed, deaths, recovered)
+        val record = CovidRecord(countryName, lastUpdate, confirmed, deaths, recovered)
         // Join the fields
-        processedLines.addOne(allValues.mkString(","))
+        processedLines.addOne(record)
       }
       lineNumber += 1
     }
