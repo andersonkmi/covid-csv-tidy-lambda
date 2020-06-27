@@ -10,7 +10,7 @@ import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{FieldSeparator, FieldS
 import scala.collection.mutable.ListBuffer
 import scala.util.Properties
 
-object S3ObjectReader {
+object S3ObjectProcessor {
   private val logger: Logger = LogManager.getLogger(getClass)
   private val s3Service = AmazonS3ClientBuilder.standard.build
   private val CountryColumnNames = List("Country/Region", "Country_Region")
