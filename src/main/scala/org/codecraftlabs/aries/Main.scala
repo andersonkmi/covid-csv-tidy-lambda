@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRecord
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.S3ObjectProcessor.readObject
+import org.codecraftlabs.aries.util.SQSUtil.enqueue
 
 import scala.jdk.CollectionConverters._
 
@@ -22,5 +23,6 @@ class Main extends RequestHandler [S3Event, String]{
     val key = event.getS3.getObject.getKey
     logger.info(s"Processing file $key from bucket $bucket")
     val results = readObject(bucket, key)
+    results.foreach(enqueue)
   }
 }

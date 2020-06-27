@@ -16,6 +16,8 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-log4j2" % "1.1.0",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.811",
   "com.amazonaws" % "aws-java-sdk-sqs" % "1.11.811",
+  "org.json4s" %% "json4s-native" % "3.6.9",
+  "org.json4s" %% "json4s-jackson" % "3.6.9",
 )
 
 scalacOptions ++= Seq(
