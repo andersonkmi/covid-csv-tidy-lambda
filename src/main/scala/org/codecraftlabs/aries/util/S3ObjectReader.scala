@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{FieldSeparator, FieldSeparatorDefaultValue}
 
+import scala.collection.mutable.ListBuffer
 import scala.util.Properties
 
 object S3ObjectReader {
@@ -18,7 +19,7 @@ object S3ObjectReader {
   private val DeathsColumnNames = List("Deaths")
   private val RecoveredColumnNames = List("Recovered")
 
-  def readObject(bucket: String, key: String): Unit = {
+  def readObject(bucket: String, key: String): List[String] = {
     logger.info("Starting S3 object processing")
 
     val s3object = s3Service.getObject(new GetObjectRequest(bucket, key))
@@ -33,7 +34,10 @@ object S3ObjectReader {
     var deathsColPosition: Int = 0
     var recoveredColPosition: Int = 0
 
-    var clear: Boolean = true;
+    var clear: Boolean = true
+
+    val processedLines: ListBuffer[String] = ListBuffer()
+
     while ({line = reader.readLine; line != null && clear}) {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
       if (lineNumber == 0) {
@@ -57,12 +61,20 @@ object S3ObjectReader {
       } else {
         // Regular value processing
         val countryName = tokens(countryColPosition)
-        logger.info(s"Country name: $countryName")
+        val lastUpdate = tokens(lastUpdateColPosition)
+        val confirmed = tokens(confirmedColPosition)
+        val deaths = tokens(deathsColPosition)
+        val recovered = tokens(recoveredColPosition)
+
+        val allValues = Array(countryName, lastUpdate, confirmed, deaths, recovered)
+        // Join the fields
+        processedLines.addOne(allValues.mkString(","))
       }
       lineNumber += 1
     }
     reader.close()
     logger.info("Finished S3 object processing")
+    processedLines.toList
   }
 
   private def getColumnPositions(tokens: Array[String]): Map[List[String], Integer] = {
@@ -77,6 +89,10 @@ object S3ObjectReader {
     logger.info(s"Deaths column position: $deathsColPosition")
     logger.info(s"Recovered column position: $recoveredColPosition")
 
-    Map(CountryColumnNames -> countryColPosition, LastUpdateColumnNames -> lastUpdateColPosition, ConfirmedColumnNames -> confirmedColPosition, DeathsColumnNames -> deathsColPosition, RecoveredColumnNames -> recoveredColPosition)
+    Map(CountryColumnNames -> countryColPosition,
+      LastUpdateColumnNames -> lastUpdateColPosition,
+      ConfirmedColumnNames -> confirmedColPosition,
+      DeathsColumnNames -> deathsColPosition,
+      RecoveredColumnNames -> recoveredColPosition)
   }
 }

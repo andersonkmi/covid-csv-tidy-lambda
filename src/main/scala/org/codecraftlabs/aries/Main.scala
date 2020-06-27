@@ -21,6 +21,6 @@ class Main extends RequestHandler [S3Event, String]{
     val bucket = event.getS3.getBucket.getName
     val key = event.getS3.getObject.getKey
     logger.info(s"Processing file $key from bucket $bucket")
-    readObject(bucket, key)
+    val results = readObject(bucket, key)
   }
 }
