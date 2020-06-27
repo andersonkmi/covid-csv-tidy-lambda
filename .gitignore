@@ -5,3 +5,4 @@
 target/
 null/
 .serverless/
+serverless-config.yaml
