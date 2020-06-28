@@ -28,6 +28,20 @@ provider:
     maxPreviousDeploymentArtifacts: 10
     blockPublicAccess: true
   role: ${file(serverless-config-${opt:stage}.yaml):lambda-role}
+  custom:
+    vpc:
+      dev:
+        securityGroupIds: []
+        subnetIds: []
+      prod:
+        securityGroupIds:
+          Fn::Split:
+            - ','
+            - ${file(serverless-config-${opt:stage}.yaml):vpc-security-group-ids}
+        subnetIds:
+          Fn::Split:
+            - ','
+            - ${file(serverless-config-${opt:stage}.yaml):vpc-subnet-ids}
 
 # you can add packaging information here
 # Make sure to run "sbt assembly" to create a jar file
@@ -50,6 +64,7 @@ functions:
 
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
+      FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}
 
-plugins:
-  - serverless-plugin-existing-s3
+#plugins:
+#  - serverless-plugin-existing-s3
