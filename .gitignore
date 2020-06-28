@@ -5,4 +5,6 @@
 target/
 null/
 .serverless/
-serverless-config.yaml
+serverless-config-dev.yaml
+serverless-config-test.yaml
+serverless-config-prod.yaml
