@@ -16,7 +16,6 @@ object SQSUtil {
 
   def enqueue(record: CovidRecord): Unit = {
     val json = write(record)
-    //logger.info(s"Sending to queue: '$json'")
     val sqsMessageRequest = new SendMessageRequest().withQueueUrl(envOrElse(RecordSQSUrl, RecordSQSUrlDefaultValue)).withMessageBody(json).withDelaySeconds(5)
     val result = sqsService.sendMessage(sqsMessageRequest)
     logger.info(s"Information sent to queue: message_id = '${result.getMessageId}'; md5_body = '${result.getMD5OfMessageBody}'")
