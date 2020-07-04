@@ -40,7 +40,7 @@ object S3ObjectProcessor {
 
     val processedLines: ListBuffer[CovidRecord] = ListBuffer()
 
-    while ({line = reader.readLine; line != null && clear}) {
+    while ({line = reader.readLine.trim; line != null && clear}) {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
       if (lineNumber == 0) {
         val positions = getColumnPositions(tokens)
