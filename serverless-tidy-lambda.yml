@@ -51,7 +51,7 @@ package:
 
 functions:
   aries:
-    handler: org.codecraftlabs.aries.Main
+    handler: org.codecraftlabs.aries.CovidCsvTidyLambda
 #    events:
 #      - s3:
 #          bucket: org.codecraftlabs.covid
