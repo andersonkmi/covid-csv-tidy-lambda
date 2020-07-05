@@ -12,7 +12,7 @@ $ sbt clean assembly
 In order to deploy the lambda function, run the following command:
 
 ```
-$ sls deploy --stage dev
+$ sls deploy --stage dev --config serverless-tidy-lambda.yml
 ```
 
 In order to remove the lambda function, run the following command:
