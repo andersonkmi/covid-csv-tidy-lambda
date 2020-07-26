@@ -1,6 +1,8 @@
 package org.codecraftlabs.aries.util
 
 import java.io.{BufferedReader, InputStreamReader}
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GetObjectRequest
@@ -19,6 +21,7 @@ object S3ObjectProcessor {
   private val ConfirmedColumnNames = List("Confirmed")
   private val DeathsColumnNames = List("Deaths")
   private val RecoveredColumnNames = List("Recovered")
+  private val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
   def readObject(bucket: String, key: String): List[CovidRecord] = {
     logger.info("Starting S3 object processing")
@@ -44,7 +47,6 @@ object S3ObjectProcessor {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
       if (lineNumber == 0) {
         val positions = getColumnPositions(tokens)
-
         countryColPosition = positions(CountryColumnNames)
         stateProvinceColPosition = positions(StateProvinceColumnNames)
         lastUpdateColPosition = positions(LastUpdateColumnNames)
@@ -52,12 +54,8 @@ object S3ObjectProcessor {
         deathsColPosition = positions(DeathsColumnNames)
         recoveredColPosition = positions(RecoveredColumnNames)
 
-        if (countryColPosition <= 0 ||
-          stateProvinceColPosition <= 0 ||
-          lastUpdateColPosition <= 0 ||
-          confirmedColPosition <= 0 ||
-          deathsColPosition <= 0 ||
-          recoveredColPosition <= 0) {
+        if (countryColPosition <= 0 || stateProvinceColPosition <= 0 || lastUpdateColPosition <= 0 ||
+            confirmedColPosition <= 0 || deathsColPosition <= 0 || recoveredColPosition <= 0) {
           logger.warn("Some of the columns were not found - aborting process")
           clear = false
           s3ObjectInputStream.abort()
@@ -70,8 +68,7 @@ object S3ObjectProcessor {
         val confirmed = tokens(confirmedColPosition)
         val deaths = tokens(deathsColPosition)
         val recovered = tokens(recoveredColPosition)
-
-        val record = CovidRecord(countryName, stateProvince, lastUpdate, confirmed, deaths, recovered)
+        val record = CovidRecord(countryName, stateProvince, dateTimeFormatter.parse(lastUpdate), confirmed, deaths, recovered)
         // Join the fields
         processedLines.addOne(record)
       }

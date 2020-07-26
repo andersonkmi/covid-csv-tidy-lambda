@@ -18,5 +18,5 @@ $ sls deploy --stage dev --config serverless-tidy-lambda.yml
 In order to remove the lambda function, run the following command:
 
 ```
-$ sls remove --stage dev
+$ sls remove --stage dev --config serverless-tidy-lambda.yml
 ```
