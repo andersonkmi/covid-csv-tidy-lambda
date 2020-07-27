@@ -42,12 +42,29 @@ object S3ObjectProcessor {
 
     val processedLines: ListBuffer[CovidRecord] = ListBuffer()
 
-    while ({line = reader.readLine.trim; line != null && clear}) {
+    while ({line = reader.readLine; line != null && clear}) {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
+
+      val elements = ListBuffer[String]()
+      val buffer = new StringBuilder()
+      var separatorAlreadyFound = false
+      tokens.foreach(item => {
+        if (item.contains("\"") && !separatorAlreadyFound) {
+          separatorAlreadyFound = true
+          buffer.append(item)
+        } else if (item.contains("\"") && separatorAlreadyFound) {
+          buffer.append(item)
+          elements.addOne(buffer.toString())
+          separatorAlreadyFound = false
+          buffer.clear()
+        } else {
+          elements.addOne(item)
+        }
+      })
 
       // Handle file header
       if (lineNumber == 0) {
-        val positions = getColumnPositions(tokens)
+        val positions = getColumnPositions(elements.toArray)
         countryColPosition = positions(CountryColumnNames)
         stateProvinceColPosition = positions(StateProvinceColumnNames)
         lastUpdateColPosition = positions(LastUpdateColumnNames)
@@ -63,12 +80,13 @@ object S3ObjectProcessor {
         }
       } else {
         // Regular value processing
-        val countryName = tokens(countryColPosition)
-        val stateProvince = tokens(stateProvinceColPosition)
-        val lastUpdate = tokens(lastUpdateColPosition)
-        val confirmed = tokens(confirmedColPosition)
-        val deaths = tokens(deathsColPosition)
-        val recovered = tokens(recoveredColPosition)
+        val items = elements.toArray
+        val countryName = items(countryColPosition)
+        val stateProvince = items(stateProvinceColPosition)
+        val lastUpdate = items(lastUpdateColPosition)
+        val confirmed = items(confirmedColPosition)
+        val deaths = items(deathsColPosition)
+        val recovered = items(recoveredColPosition)
         val record = CovidRecord(countryName, stateProvince, dateTimeFormatter.parse(lastUpdate), confirmed, deaths, recovered)
         // Join the fields
         processedLines.addOne(record)
