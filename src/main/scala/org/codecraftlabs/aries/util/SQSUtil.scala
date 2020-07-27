@@ -6,8 +6,7 @@ import org.apache.logging.log4j.LogManager
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.jackson.Serialization.write
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment._
-
-import scala.util.Properties._
+import scala.util.Properties.envOrElse
 
 object SQSUtil {
   protected implicit lazy val jsonFormats: Formats = DefaultFormats
@@ -18,7 +17,7 @@ object SQSUtil {
   def enqueue(record: CovidRecord): Unit = {
     try {
       val json = write(record)
-      val sqsMessageRequest = new SendMessageRequest().withQueueUrl(envOrElse(RecordSQSUrl, RecordSQSUrlDefaultValue)).withMessageBody(json).withDelaySeconds(5)
+      val sqsMessageRequest = new SendMessageRequest().withQueueUrl(envOrElse(RecordSQSUrl, "")).withMessageBody(json).withDelaySeconds(5)
       val result = sqsService.sendMessage(sqsMessageRequest)
       logger.debug(s"Information sent to queue: message_id = '${result.getMessageId}'; md5_body = '${result.getMD5OfMessageBody}'")
     } catch {

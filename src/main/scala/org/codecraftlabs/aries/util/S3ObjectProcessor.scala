@@ -28,79 +28,70 @@ object S3ObjectProcessor {
     val s3object = s3Service.getObject(new GetObjectRequest(bucket, key))
     val s3ObjectInputStream = s3object.getObjectContent
     val reader = new BufferedReader(new InputStreamReader(s3ObjectInputStream))
-    var line: String = null
 
-    var lineNumber: Int = 0
-    var countryColPosition: Int = 0
-    var stateProvinceColPosition: Int = 0
-    var lastUpdateColPosition: Int = 0
-    var confirmedColPosition: Int = 0
-    var deathsColPosition: Int = 0
-    var recoveredColPosition: Int = 0
+    val firstLine = reader.readLine()
+    val positions = getColumnPositions(splitFormatLine(firstLine))
 
-    var clear: Boolean = true
+    val countryColPosition: Int = positions(CountryColumnNames)
+    val stateProvinceColPosition: Int = positions(StateProvinceColumnNames)
+    val lastUpdateColPosition: Int = positions(LastUpdateColumnNames)
+    val confirmedColPosition: Int = positions(ConfirmedColumnNames)
+    val deathsColPosition: Int = positions(DeathsColumnNames)
+    val recoveredColPosition: Int = positions(RecoveredColumnNames)
 
-    val processedLines: ListBuffer[CovidRecord] = ListBuffer()
+    if (countryColPosition <= 0 || stateProvinceColPosition <= 0 || lastUpdateColPosition <= 0 ||
+    confirmedColPosition <= 0 || deathsColPosition <= 0 || recoveredColPosition <= 0) {
+      logger.warn("Some of the columns were not found - aborting process")
+      s3ObjectInputStream.abort()
+      List()
+    } else {
+      var line: String = null
+      val processedLines: ListBuffer[CovidRecord] = ListBuffer()
 
-    while ({line = reader.readLine; line != null && clear}) {
-      val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
-
-      // the code here is required because there fields that have commas as part of the string
-      // and it needs to be handled otherwise the split fails.
-      val elements = ListBuffer[String]()
-      val buffer = new StringBuilder()
-      var separatorAlreadyFound = false
-      tokens.foreach(item => {
-        if (item.contains("\"") && !separatorAlreadyFound) {
-          separatorAlreadyFound = true
-          buffer.append(item)
-        } else if (item.contains("\"") && separatorAlreadyFound) {
-          buffer.append(item)
-          elements.addOne(buffer.toString())
-          separatorAlreadyFound = false
-          buffer.clear()
-        } else {
-          elements.addOne(item)
-        }
-      })
-
-      // Handle file header
-      if (lineNumber == 0) {
-        val positions = getColumnPositions(elements.toArray)
-        countryColPosition = positions(CountryColumnNames)
-        stateProvinceColPosition = positions(StateProvinceColumnNames)
-        lastUpdateColPosition = positions(LastUpdateColumnNames)
-        confirmedColPosition = positions(ConfirmedColumnNames)
-        deathsColPosition = positions(DeathsColumnNames)
-        recoveredColPosition = positions(RecoveredColumnNames)
-
-        if (countryColPosition <= 0 || stateProvinceColPosition <= 0 || lastUpdateColPosition <= 0 ||
-            confirmedColPosition <= 0 || deathsColPosition <= 0 || recoveredColPosition <= 0) {
-          logger.warn("Some of the columns were not found - aborting process")
-          clear = false
-          s3ObjectInputStream.abort()
-        }
-      } else {
-        // Regular value processing
-        val items = elements.toArray
-        val countryName = items(countryColPosition)
-        val stateProvince = items(stateProvinceColPosition)
-        val lastUpdate = items(lastUpdateColPosition)
-        val confirmed = items(confirmedColPosition)
-        val deaths = items(deathsColPosition)
-        val recovered = items(recoveredColPosition)
+      while ({line = reader.readLine; line != null}) {
+        val formattedLine = splitFormatLine(line)
+        val countryName = formattedLine(countryColPosition)
+        val stateProvince = formattedLine(stateProvinceColPosition)
+        val lastUpdate = formattedLine(lastUpdateColPosition)
+        val confirmed = formattedLine(confirmedColPosition)
+        val deaths = formattedLine(deathsColPosition)
+        val recovered = formattedLine(recoveredColPosition)
         val record = CovidRecord(countryName, stateProvince, dateTimeFormatter.parse(lastUpdate), confirmed, deaths, recovered)
         // Join the fields
         processedLines.addOne(record)
       }
-      lineNumber += 1
+      reader.close()
+      logger.info("Finished S3 object processing")
+      processedLines.toList
     }
-    reader.close()
-    logger.info("Finished S3 object processing")
-    processedLines.toList
   }
 
-  private def getColumnPositions(tokens: Array[String]): Map[List[String], Integer] = {
+  private def splitFormatLine(line: String): List[String] = {
+    val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
+
+    // the code here is required because there fields that have commas as part of the string
+    // and it needs to be handled otherwise the split fails.
+    val elements = ListBuffer[String]()
+    val buffer = new StringBuilder()
+    var separatorAlreadyFound = false
+    tokens.foreach(item => {
+      if (item.contains("\"") && !separatorAlreadyFound) {
+        separatorAlreadyFound = true
+        buffer.append(item)
+      } else if (item.contains("\"") && separatorAlreadyFound) {
+        buffer.append(item)
+        elements.addOne(buffer.toString())
+        separatorAlreadyFound = false
+        buffer.clear()
+      } else {
+        elements.addOne(item)
+      }
+    })
+
+    elements.toList
+  }
+
+  private def getColumnPositions(tokens: List[String]): Map[List[String], Integer] = {
     val countryColPosition = tokens.indexWhere(CountryColumnNames.contains(_))
     val stateProvinceColPosition = tokens.indexWhere(StateProvinceColumnNames.contains(_))
     val lastUpdateColPosition = tokens.indexWhere(LastUpdateColumnNames.contains(_))
