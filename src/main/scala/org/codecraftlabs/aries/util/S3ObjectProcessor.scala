@@ -45,6 +45,8 @@ object S3ObjectProcessor {
     while ({line = reader.readLine; line != null && clear}) {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
 
+      // the code here is required because there fields that have commas as part of the string
+      // and it needs to be handled otherwise the split fails.
       val elements = ListBuffer[String]()
       val buffer = new StringBuilder()
       var separatorAlreadyFound = false
