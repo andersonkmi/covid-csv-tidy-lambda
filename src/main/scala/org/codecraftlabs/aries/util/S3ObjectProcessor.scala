@@ -2,7 +2,6 @@ package org.codecraftlabs.aries.util
 
 import java.io.{BufferedReader, InputStreamReader}
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GetObjectRequest
@@ -45,6 +44,8 @@ object S3ObjectProcessor {
 
     while ({line = reader.readLine.trim; line != null && clear}) {
       val tokens = line.split(Properties.envOrElse(FieldSeparator, FieldSeparatorDefaultValue))
+
+      // Handle file header
       if (lineNumber == 0) {
         val positions = getColumnPositions(tokens)
         countryColPosition = positions(CountryColumnNames)
