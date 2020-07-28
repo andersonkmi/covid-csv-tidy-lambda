@@ -4,7 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQSClientBuilder
 import com.amazonaws.services.sqs.model.{AmazonSQSException, SendMessageRequest}
 import org.apache.logging.log4j.LogManager
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment._
-import org.json4s.jackson.Serialization.{read, write}
+import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, Formats}
 
 import scala.collection.mutable
