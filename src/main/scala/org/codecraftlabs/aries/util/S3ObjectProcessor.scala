@@ -58,9 +58,20 @@ object S3ObjectProcessor {
         val confirmed = formattedLine(confirmedColPosition)
         val deaths = formattedLine(deathsColPosition)
         val recovered = formattedLine(recoveredColPosition)
-        val record = CovidRecord(countryName, stateProvince, dateTimeFormatYYYY_MM_DD_HH_MM_SS.parse(lastUpdate), confirmed, deaths, recovered)
-        // Join the fields
-        processedLines.addOne(record)
+
+        if (lastUpdate.contains("/")) {
+          val convertedDate = dateTimeFormatMM_DD_YYYY_HHMM.parse(lastUpdate)
+          val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
+          processedLines.addOne(record)
+        } else if (lastUpdate.contains("T")) {
+          val convertedDate = dateTimeFormatYYYY_MM_DD_T_HH_MM_SS.parse(lastUpdate)
+          val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
+          processedLines.addOne(record)
+        } else {
+          val convertedDate = dateTimeFormatYYYY_MM_DD_HH_MM_SS.parse(lastUpdate)
+          val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
+          processedLines.addOne(record)
+        }
       }
       reader.close()
       logger.info("Finished S3 object processing")
