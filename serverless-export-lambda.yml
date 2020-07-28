@@ -60,7 +60,7 @@ functions:
 #            - prefix: incoming/
 #            - suffix: .csv
     memorySize: 512
-    timeout: 1500
+    timeout: 900
 
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
