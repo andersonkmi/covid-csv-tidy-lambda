@@ -3,9 +3,11 @@ package org.codecraftlabs.aries.util
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder
 import com.amazonaws.services.sqs.model.{AmazonSQSException, SendMessageRequest}
 import org.apache.logging.log4j.LogManager
-import org.json4s.{DefaultFormats, Formats}
-import org.json4s.jackson.Serialization.write
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment._
+import org.json4s.jackson.Serialization.{read, write}
+import org.json4s.{DefaultFormats, Formats}
+
+import scala.collection.mutable
 import scala.util.Properties.envOrElse
 
 object SQSUtil {
@@ -24,5 +26,16 @@ object SQSUtil {
       case exception: AmazonSQSException =>
         logger.warn(s"Failed to send message to SQS: '${exception.getMessage}'", exception)
     }
+  }
+
+  def getRecords: Map[String, String] = {
+    val messages = sqsService.receiveMessage(envOrElse(RecordSQSUrl, "")).getMessages
+    val results = mutable.Map[String, String]()
+    messages.forEach(item => results(item.getReceiptHandle) = item.getBody)
+    results.toMap
+  }
+
+  def deleteMessages(messageHandles: Set[String]): Unit = {
+    messageHandles.foreach(sqsService.deleteMessage(envOrElse(RecordSQSUrl, ""), _))
   }
 }
