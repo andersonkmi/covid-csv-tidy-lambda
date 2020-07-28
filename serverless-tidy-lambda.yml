@@ -61,7 +61,6 @@ functions:
 #            - suffix: .csv
     memorySize: 512
     timeout: 900
-
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
       FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}

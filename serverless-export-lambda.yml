@@ -52,23 +52,11 @@ package:
 functions:
   aries:
     handler: org.codecraftlabs.aries.CovidRecordExportLambda::processRecords
-#    events:
-#      - s3:
-#          bucket: org.codecraftlabs.covid
-#          event: s3:ObjectCreated:*
-#          rules:
-#            - prefix: incoming/
-#            - suffix: .csv
     memorySize: 512
     timeout: 900
-
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
       FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}
-      BATCH_SIZE: ${file(serverless-config-${opt:stage}.yaml):batch-size}
       NUMBER_ITERATIONS: ${file(serverless-config-${opt:stage}.yaml):number-iterations}
       DESTINATION_S3_BUCKET: ${file(serverless-config-${opt:stage}.yaml):destination-s3-bucket}
       DESTINATION_S3_PREFIX: ${file(serverless-config-${opt:stage}.yaml):destination-s3-prefix}
-
-#plugins:
-#  - serverless-plugin-existing-s3
