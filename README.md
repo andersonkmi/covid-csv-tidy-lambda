@@ -20,3 +20,17 @@ In order to remove the tidy lambda function, run the following command:
 ```
 $ sls remove --stage dev --config serverless-tidy-lambda.yml
 ```
+
+## How to build and deploy/remove the record export lambda function
+
+In order to deploy the export lambda function, run the following command:
+
+```
+$ sls deploy --stage dev --config serverless-export-lambda.yml
+```
+
+In order to remove the export lambda function, run the following command:
+
+```
+$ sls remove --stage dev --config serverless-export-lambda.yml
+```
