@@ -20,7 +20,9 @@ object S3ObjectProcessor {
   private val ConfirmedColumnNames = List("Confirmed")
   private val DeathsColumnNames = List("Deaths")
   private val RecoveredColumnNames = List("Recovered")
-  private val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+  private val dateTimeFormatYYYY_MM_DD_HH_MM_SS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+  private val dateTimeFormatYYYY_MM_DD_T_HH_MM_SS = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss")
+  private val dateTimeFormatMM_DD_YYYY_HHMM = new SimpleDateFormat("m/dd/yyyy HH:mm")
 
   def readObject(bucket: String, key: String): List[CovidRecord] = {
     logger.info("Starting S3 object processing")
@@ -56,7 +58,7 @@ object S3ObjectProcessor {
         val confirmed = formattedLine(confirmedColPosition)
         val deaths = formattedLine(deathsColPosition)
         val recovered = formattedLine(recoveredColPosition)
-        val record = CovidRecord(countryName, stateProvince, dateTimeFormatter.parse(lastUpdate), confirmed, deaths, recovered)
+        val record = CovidRecord(countryName, stateProvince, dateTimeFormatYYYY_MM_DD_HH_MM_SS.parse(lastUpdate), confirmed, deaths, recovered)
         // Join the fields
         processedLines.addOne(record)
       }
