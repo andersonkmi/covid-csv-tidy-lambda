@@ -1,0 +1,73 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: covid-record-export-lambda
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  runtime: java11
+  deploymentBucket:
+    name: ${file(serverless-config-${opt:stage}.yaml):deploy-bucket}
+    maxPreviousDeploymentArtifacts: 10
+    blockPublicAccess: true
+  role: ${file(serverless-config-${opt:stage}.yaml):lambda-role}
+  custom:
+    vpc:
+      dev:
+        securityGroupIds: []
+        subnetIds: []
+      prod:
+        securityGroupIds:
+          Fn::Split:
+            - ','
+            - ${file(serverless-config-${opt:stage}.yaml):vpc-security-group-ids}
+        subnetIds:
+          Fn::Split:
+            - ','
+            - ${file(serverless-config-${opt:stage}.yaml):vpc-subnet-ids}
+
+# you can add packaging information here
+# Make sure to run "sbt assembly" to create a jar file
+# with all your dependencies and put that jar file name here.
+package:
+  artifact: target/scala-2.13/covid-csv-tidy-lambda.jar
+
+functions:
+  aries:
+    handler: org.codecraftlabs.aries.CovidRecordExportLambda::processRecords
+#    events:
+#      - s3:
+#          bucket: org.codecraftlabs.covid
+#          event: s3:ObjectCreated:*
+#          rules:
+#            - prefix: incoming/
+#            - suffix: .csv
+    memorySize: 512
+    timeout: 1500
+
+    environment:
+      RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
+      FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}
+      BATCH_SIZE: ${file(serverless-config-${opt:stage}.yaml):batch-size}
+      DESTINATION_S3_BUCKET: ${file(serverless-config-${opt:stage}.yaml):destination-s3-bucket}
+      DESTINATION_S3_PREFIX: ${file(serverless-config-${opt:stage}.yaml):destination-s3-prefix}
+
+#plugins:
+#  - serverless-plugin-existing-s3

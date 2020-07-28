@@ -5,4 +5,6 @@ object AWSLambdaEnvironment {
   val FieldSeparatorDefaultValue = ","
   val RecordSQSUrl = "RECORD_SQS_URL"
   val BatchSize = "BATCH_SIZE"
+  val DestinationS3Bucket = "DESTINATION_S3_BUCKET"
+  val DestinationS3Prefix = "DESTINATION_S3_PREFIX"
 }
