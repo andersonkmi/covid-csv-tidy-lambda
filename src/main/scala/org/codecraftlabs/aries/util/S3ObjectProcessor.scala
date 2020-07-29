@@ -84,6 +84,7 @@ object S3ObjectProcessor {
     try {
       val metadata = new ObjectMetadata()
       metadata.setContentType("application/json")
+      metadata.setContentLength(contents.getBytes.length)
       val inputStream = new ByteArrayInputStream(contents.getBytes)
       val putRequest = new PutObjectRequest(bucket, keyName, inputStream, metadata)
       s3Service.putObject(putRequest)
