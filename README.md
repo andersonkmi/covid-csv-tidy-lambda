@@ -1,5 +1,9 @@
-# COVID csv files tidy lambda
-AWS Lambda for processing and tidying CSV files with COVID data
+# COVID CSV files tidy and export lambda
+
+This is another project my mine to practice some AWS services (AWS Lambda, S3, Serverless framework, SQS and Athena)
+
+AWS Lambda for processing and tidying CSV files with COVID data to standardize date/time format and extract the desired 
+columns to play with.
 
 ## How to build and deploy/remove the CSV tidy lambda function
 
