@@ -74,6 +74,7 @@ object S3ObjectProcessor {
           processedLines.addOne(record)
         }
       }
+
       reader.close()
       logger.info("Finished S3 object processing")
       processedLines.toList
@@ -85,6 +86,7 @@ object S3ObjectProcessor {
       val metadata = new ObjectMetadata()
       metadata.setContentType("application/json")
       metadata.setContentLength(contents.getBytes.length)
+
       val inputStream = new ByteArrayInputStream(contents.getBytes)
       val putRequest = new PutObjectRequest(bucket, keyName, inputStream, metadata)
       s3Service.putObject(putRequest)

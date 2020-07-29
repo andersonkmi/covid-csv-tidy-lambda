@@ -32,8 +32,7 @@ object SQSUtil {
     val messages = sqsService.receiveMessage(envOrElse(RecordSQSUrl, "")).getMessages
     val results = ListBuffer[CovidJsonRecord]()
     messages.forEach(item => {
-      val record = CovidJsonRecord(item.getMessageId, item.getReceiptHandle, item.getBody)
-      results.addOne(record)
+      results.addOne(CovidJsonRecord(item.getMessageId, item.getReceiptHandle, item.getBody))
     })
     results.toList
   }
