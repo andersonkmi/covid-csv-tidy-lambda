@@ -15,12 +15,12 @@ import scala.util.Properties
 object S3ObjectProcessor {
   private val logger: Logger = LogManager.getLogger(getClass)
   private val s3Service = AmazonS3ClientBuilder.standard.build
-  private val CountryColumnNames = List("Country/Region", "Country_Region")
-  private val StateProvinceColumnNames = List("Province_State", "Province/State")
-  private val LastUpdateColumnNames = List("Last Update", "Last_Update")
-  private val ConfirmedColumnNames = List("Confirmed")
-  private val DeathsColumnNames = List("Deaths")
-  private val RecoveredColumnNames = List("Recovered")
+  private val CountryColumn = "Country"
+  private val StateProvinceColumn = "Province"
+  private val LastUpdateColumn = "Update"
+  private val ConfirmedColumn = "Confirmed"
+  private val DeathsColumn = "Deaths"
+  private val RecoveredColumn = "Recovered"
   private val dateTimeFormatYYYY_MM_DD_HH_MM_SS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
   private val dateTimeFormatYYYY_MM_DD_T_HH_MM_SS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
   private val dateTimeFormatMM_DD_YYYY_HHMM = new SimpleDateFormat("M/dd/yyyy HH:mm")
@@ -35,15 +35,15 @@ object S3ObjectProcessor {
     val firstLine = reader.readLine()
     val positions = getColumnPositions(splitFormatLine(firstLine))
 
-    val countryColPosition: Int = positions(CountryColumnNames)
-    val stateProvinceColPosition: Int = positions(StateProvinceColumnNames)
-    val lastUpdateColPosition: Int = positions(LastUpdateColumnNames)
-    val confirmedColPosition: Int = positions(ConfirmedColumnNames)
-    val deathsColPosition: Int = positions(DeathsColumnNames)
-    val recoveredColPosition: Int = positions(RecoveredColumnNames)
+    val countryColPosition: Int = positions(CountryColumn)
+    val stateProvinceColPosition: Int = positions(StateProvinceColumn)
+    val lastUpdateColPosition: Int = positions(LastUpdateColumn)
+    val confirmedColPosition: Int = positions(ConfirmedColumn)
+    val deathsColPosition: Int = positions(DeathsColumn)
+    val recoveredColPosition: Int = positions(RecoveredColumn)
 
-    if (countryColPosition <= 0 || stateProvinceColPosition <= 0 || lastUpdateColPosition <= 0 ||
-    confirmedColPosition <= 0 || deathsColPosition <= 0 || recoveredColPosition <= 0) {
+    if (countryColPosition < 0 || stateProvinceColPosition < 0 || lastUpdateColPosition < 0 ||
+    confirmedColPosition < 0 || deathsColPosition < 0 || recoveredColPosition < 0) {
       logger.warn("Some of the columns were not found - aborting process")
       s3ObjectInputStream.abort()
       List()
@@ -56,9 +56,9 @@ object S3ObjectProcessor {
         val countryName = formattedLine(countryColPosition)
         val stateProvince = formattedLine(stateProvinceColPosition)
         val lastUpdate = formattedLine(lastUpdateColPosition)
-        val confirmed = formattedLine(confirmedColPosition).toLong
-        val deaths = formattedLine(deathsColPosition).toLong
-        val recovered = formattedLine(recoveredColPosition).toLong
+        val confirmed = if (confirmedColPosition >= formattedLine.size) 0 else formattedLine(confirmedColPosition).toLong
+        val deaths = if (deathsColPosition >= formattedLine.size) 0 else formattedLine(deathsColPosition).toLong
+        val recovered = if (recoveredColPosition >= formattedLine.size) 0 else formattedLine(recoveredColPosition).toLong
 
         if (lastUpdate.contains("/")) {
           val convertedDate = dateTimeFormatMM_DD_YYYY_HHMM.parse(lastUpdate)
@@ -120,13 +120,13 @@ object S3ObjectProcessor {
     elements.toList
   }
 
-  private def getColumnPositions(tokens: List[String]): Map[List[String], Integer] = {
-    val countryColPosition = tokens.indexWhere(CountryColumnNames.contains(_))
-    val stateProvinceColPosition = tokens.indexWhere(StateProvinceColumnNames.contains(_))
-    val lastUpdateColPosition = tokens.indexWhere(LastUpdateColumnNames.contains(_))
-    val confirmedColPosition = tokens.indexWhere(ConfirmedColumnNames.contains(_))
-    val deathsColPosition = tokens.indexWhere(DeathsColumnNames.contains(_))
-    val recoveredColPosition = tokens.indexWhere(RecoveredColumnNames.contains(_))
+  private def getColumnPositions(tokens: List[String]): Map[String, Integer] = {
+    val countryColPosition = tokens.indexWhere(_.contains(CountryColumn))
+    val stateProvinceColPosition = tokens.indexWhere(_.contains(StateProvinceColumn))
+    val lastUpdateColPosition = tokens.indexWhere(_.contains(LastUpdateColumn))
+    val confirmedColPosition = tokens.indexWhere(_.contains(ConfirmedColumn))
+    val deathsColPosition = tokens.indexWhere(_.contains(DeathsColumn))
+    val recoveredColPosition = tokens.indexWhere(_.contains(RecoveredColumn))
     logger.info(s"Country column position: $countryColPosition")
     logger.info(s"State/Province column position: $stateProvinceColPosition")
     logger.info(s"Last update column position: $lastUpdateColPosition")
@@ -134,11 +134,11 @@ object S3ObjectProcessor {
     logger.info(s"Deaths column position: $deathsColPosition")
     logger.info(s"Recovered column position: $recoveredColPosition")
 
-    Map(CountryColumnNames -> countryColPosition,
-      StateProvinceColumnNames -> stateProvinceColPosition,
-      LastUpdateColumnNames -> lastUpdateColPosition,
-      ConfirmedColumnNames -> confirmedColPosition,
-      DeathsColumnNames -> deathsColPosition,
-      RecoveredColumnNames -> recoveredColPosition)
+    Map(CountryColumn -> countryColPosition,
+      StateProvinceColumn -> stateProvinceColPosition,
+      LastUpdateColumn -> lastUpdateColPosition,
+      ConfirmedColumn -> confirmedColPosition,
+      DeathsColumn -> deathsColPosition,
+      RecoveredColumn -> recoveredColPosition)
   }
 }
