@@ -22,7 +22,7 @@ service: covid-record-export-lambda
 
 provider:
   name: aws
-  runtime: java11
+  runtime: java8
   deploymentBucket:
     name: ${file(serverless-config-${opt:stage}.yaml):deploy-bucket}
     maxPreviousDeploymentArtifacts: 10
