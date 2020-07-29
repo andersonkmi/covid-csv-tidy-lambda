@@ -7,13 +7,34 @@ columns to play with.
 
 The source code developed was based on the CSV format provided by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. See References section for more information.
 
-## How to build and deploy/remove the CSV tidy lambda function
+## How to build
 
 In order to build this lambda function, run the following command:
 
 ```
 $ sbt clean assembly
 ```
+
+## How to configure the common config file for both lambdas
+
+When deploying the lambda functions they require a config file with the values to be used. Such file needs to be named:
+
+- serverless-config-dev.yaml (for dev stage)
+- serverless-config-prod.yaml (for prod stage)
+
+The following fields need to be configured:
+
+- deploy-bucket
+- lambda-role
+- record-sqs-url
+- field-separator
+- number-iterations
+- destination-s3-bucket
+- destination-s3-prefix
+- vpc-security-group-ids
+- vpc-subnet-ids
+
+## How to deploy/remove the CSV tidy lambda function
 
 In order to deploy the tidy lambda function, run the following command:
 
@@ -27,7 +48,7 @@ In order to remove the tidy lambda function, run the following command:
 $ sls remove --stage dev --config serverless-tidy-lambda.yml
 ```
 
-## How to build and deploy/remove the record export lambda function
+## How to deploy/remove the record export lambda function
 
 In order to deploy the export lambda function, run the following command:
 
