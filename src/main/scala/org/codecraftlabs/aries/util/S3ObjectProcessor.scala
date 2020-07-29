@@ -56,9 +56,9 @@ object S3ObjectProcessor {
         val countryName = formattedLine(countryColPosition)
         val stateProvince = formattedLine(stateProvinceColPosition)
         val lastUpdate = formattedLine(lastUpdateColPosition)
-        val confirmed = formattedLine(confirmedColPosition)
-        val deaths = formattedLine(deathsColPosition)
-        val recovered = formattedLine(recoveredColPosition)
+        val confirmed = formattedLine(confirmedColPosition).toLong
+        val deaths = formattedLine(deathsColPosition).toLong
+        val recovered = formattedLine(recoveredColPosition).toLong
 
         if (lastUpdate.contains("/")) {
           val convertedDate = dateTimeFormatMM_DD_YYYY_HHMM.parse(lastUpdate)
