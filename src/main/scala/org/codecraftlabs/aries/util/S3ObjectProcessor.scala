@@ -1,10 +1,11 @@
 package org.codecraftlabs.aries.util
 
-import java.io.{BufferedReader, InputStreamReader}
+import java.io.{BufferedReader, ByteArrayInputStream, InputStreamReader}
 import java.text.SimpleDateFormat
 
+import com.amazonaws.AmazonServiceException
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.GetObjectRequest
+import com.amazonaws.services.s3.model.{GetObjectRequest, ObjectMetadata, PutObjectRequest}
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{FieldSeparator, FieldSeparatorDefaultValue}
 
@@ -76,6 +77,18 @@ object S3ObjectProcessor {
       reader.close()
       logger.info("Finished S3 object processing")
       processedLines.toList
+    }
+  }
+
+  def writeObject(bucket: String, keyName: String, contents: String): Unit = {
+    try {
+      val metadata = new ObjectMetadata()
+      metadata.setContentType("application/json")
+      val inputStream = new ByteArrayInputStream(contents.getBytes)
+      val putRequest = new PutObjectRequest(bucket, keyName, inputStream, metadata)
+      s3Service.putObject(putRequest)
+    } catch {
+      case exception: AmazonServiceException => logger.warn("Error when creating a JSON file", exception)
     }
   }
 

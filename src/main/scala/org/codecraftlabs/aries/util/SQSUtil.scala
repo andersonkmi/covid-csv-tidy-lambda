@@ -7,7 +7,7 @@ import org.codecraftlabs.aries.util.AWSLambdaEnvironment._
 import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, Formats}
 
-import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.util.Properties.envOrElse
 
 object SQSUtil {
@@ -28,14 +28,17 @@ object SQSUtil {
     }
   }
 
-  def getRecords: Map[String, String] = {
+  def getRecords: List[CovidJsonRecord] = {
     val messages = sqsService.receiveMessage(envOrElse(RecordSQSUrl, "")).getMessages
-    val results = mutable.Map[String, String]()
-    messages.forEach(item => results(item.getReceiptHandle) = item.getBody)
-    results.toMap
+    val results = ListBuffer[CovidJsonRecord]()
+    messages.forEach(item => {
+      val record = CovidJsonRecord(item.getMessageId, item.getReceiptHandle, item.getBody)
+      results.addOne(record)
+    })
+    results.toList
   }
 
-  def deleteMessages(messageHandles: Set[String]): Unit = {
+  def deleteMessages(messageHandles: List[String]): Unit = {
     messageHandles.foreach(sqsService.deleteMessage(envOrElse(RecordSQSUrl, ""), _))
   }
 }
