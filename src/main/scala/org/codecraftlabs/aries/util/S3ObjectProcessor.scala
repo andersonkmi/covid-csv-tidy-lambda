@@ -1,13 +1,15 @@
 package org.codecraftlabs.aries.util
 
 import java.io.{BufferedReader, ByteArrayInputStream, InputStreamReader}
-import java.text.SimpleDateFormat
+import java.util.Date
 
 import com.amazonaws.AmazonServiceException
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.{GetObjectRequest, ObjectMetadata, PutObjectRequest}
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{FieldSeparator, FieldSeparatorDefaultValue}
+import org.codecraftlabs.aries.util.CovidCsvColumnNames._
+import org.codecraftlabs.aries.util.DateTimeFormatters.{MM_DD_YYYY_HHMM, YYYY_MM_DD_HH_MM_SS, YYYY_MM_DD_T_HH_MM_SS}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Properties
@@ -15,15 +17,6 @@ import scala.util.Properties
 object S3ObjectProcessor {
   private val logger: Logger = LogManager.getLogger(getClass)
   private val s3Service = AmazonS3ClientBuilder.standard.build
-  private val CountryColumn = "Country"
-  private val StateProvinceColumn = "Province"
-  private val LastUpdateColumn = "Update"
-  private val ConfirmedColumn = "Confirmed"
-  private val DeathsColumn = "Deaths"
-  private val RecoveredColumn = "Recovered"
-  private val dateTimeFormatYYYY_MM_DD_HH_MM_SS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  private val dateTimeFormatYYYY_MM_DD_T_HH_MM_SS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-  private val dateTimeFormatMM_DD_YYYY_HHMM = new SimpleDateFormat("M/dd/yyyy HH:mm")
 
   def readObject(bucket: String, key: String): List[CovidRecord] = {
     logger.info("Starting S3 object processing")
@@ -35,12 +28,12 @@ object S3ObjectProcessor {
     val firstLine = reader.readLine()
     val positions = getColumnPositions(splitFormatLine(firstLine))
 
-    val countryColPosition: Int = positions(CountryColumn)
-    val stateProvinceColPosition: Int = positions(StateProvinceColumn)
-    val lastUpdateColPosition: Int = positions(LastUpdateColumn)
-    val confirmedColPosition: Int = positions(ConfirmedColumn)
-    val deathsColPosition: Int = positions(DeathsColumn)
-    val recoveredColPosition: Int = positions(RecoveredColumn)
+    val countryColPosition: Int = positions(Country)
+    val stateProvinceColPosition: Int = positions(StateProvince)
+    val lastUpdateColPosition: Int = positions(LastUpdate)
+    val confirmedColPosition: Int = positions(Confirmed)
+    val deathsColPosition: Int = positions(Deaths)
+    val recoveredColPosition: Int = positions(Recovered)
 
     if (countryColPosition < 0 || stateProvinceColPosition < 0 || lastUpdateColPosition < 0 ||
     confirmedColPosition < 0 || deathsColPosition < 0 || recoveredColPosition < 0) {
@@ -53,6 +46,7 @@ object S3ObjectProcessor {
 
       while ({line = reader.readLine; line != null}) {
         val formattedLine = splitFormatLine(line)
+
         val countryName = formattedLine(countryColPosition)
         val stateProvince = formattedLine(stateProvinceColPosition)
         val lastUpdate = formattedLine(lastUpdateColPosition)
@@ -60,19 +54,18 @@ object S3ObjectProcessor {
         val deaths = if (deathsColPosition >= formattedLine.size) 0 else formattedLine(deathsColPosition).toLong
         val recovered = if (recoveredColPosition >= formattedLine.size) 0 else formattedLine(recoveredColPosition).toLong
 
+        // Handles different date and time formats
+        var convertedDate = new Date()
         if (lastUpdate.contains("/")) {
-          val convertedDate = dateTimeFormatMM_DD_YYYY_HHMM.parse(lastUpdate)
-          val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
-          processedLines.addOne(record)
+          convertedDate = MM_DD_YYYY_HHMM.parse(lastUpdate)
         } else if (lastUpdate.contains("T")) {
-          val convertedDate = dateTimeFormatYYYY_MM_DD_T_HH_MM_SS.parse(lastUpdate)
-          val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
-          processedLines.addOne(record)
+          convertedDate = YYYY_MM_DD_T_HH_MM_SS.parse(lastUpdate)
         } else {
-          val convertedDate = dateTimeFormatYYYY_MM_DD_HH_MM_SS.parse(lastUpdate)
-          val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
-          processedLines.addOne(record)
+          convertedDate = YYYY_MM_DD_HH_MM_SS.parse(lastUpdate)
         }
+
+        val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
+        processedLines.addOne(record)
       }
 
       reader.close()
@@ -121,12 +114,13 @@ object S3ObjectProcessor {
   }
 
   private def getColumnPositions(tokens: List[String]): Map[String, Integer] = {
-    val countryColPosition = tokens.indexWhere(_.contains(CountryColumn))
-    val stateProvinceColPosition = tokens.indexWhere(_.contains(StateProvinceColumn))
-    val lastUpdateColPosition = tokens.indexWhere(_.contains(LastUpdateColumn))
-    val confirmedColPosition = tokens.indexWhere(_.contains(ConfirmedColumn))
-    val deathsColPosition = tokens.indexWhere(_.contains(DeathsColumn))
-    val recoveredColPosition = tokens.indexWhere(_.contains(RecoveredColumn))
+    val countryColPosition = tokens.indexWhere(_.contains(Country))
+    val stateProvinceColPosition = tokens.indexWhere(_.contains(StateProvince))
+    val lastUpdateColPosition = tokens.indexWhere(_.contains(LastUpdate))
+    val confirmedColPosition = tokens.indexWhere(_.contains(Confirmed))
+    val deathsColPosition = tokens.indexWhere(_.contains(Deaths))
+    val recoveredColPosition = tokens.indexWhere(_.contains(Recovered))
+
     logger.info(s"Country column position: $countryColPosition")
     logger.info(s"State/Province column position: $stateProvinceColPosition")
     logger.info(s"Last update column position: $lastUpdateColPosition")
@@ -134,11 +128,11 @@ object S3ObjectProcessor {
     logger.info(s"Deaths column position: $deathsColPosition")
     logger.info(s"Recovered column position: $recoveredColPosition")
 
-    Map(CountryColumn -> countryColPosition,
-      StateProvinceColumn -> stateProvinceColPosition,
-      LastUpdateColumn -> lastUpdateColPosition,
-      ConfirmedColumn -> confirmedColPosition,
-      DeathsColumn -> deathsColPosition,
-      RecoveredColumn -> recoveredColPosition)
+    Map(Country -> countryColPosition,
+      StateProvince -> stateProvinceColPosition,
+      LastUpdate -> lastUpdateColPosition,
+      Confirmed -> confirmedColPosition,
+      Deaths -> deathsColPosition,
+      Recovered -> recoveredColPosition)
   }
 }
