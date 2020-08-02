@@ -13,7 +13,7 @@ class CovidCsvTidyLambda extends RequestHandler [S3Event, String]{
   private val logger: Logger = LogManager.getLogger(getClass)
 
   override def handleRequest(input: S3Event, context: Context): String = {
-    logger.info("Starting S3 csv handler")
+    logger.info("Starting S3 CSV handler")
     input.getRecords.asScala.foreach(readFile)
     "Done"
   }

@@ -50,9 +50,9 @@ object S3ObjectProcessor {
         val countryName = formattedLine(countryColPosition)
         val stateProvince = formattedLine(stateProvinceColPosition)
         val lastUpdate = formattedLine(lastUpdateColPosition)
-        val confirmed = if (confirmedColPosition >= formattedLine.size) 0 else formattedLine(confirmedColPosition).toLong
-        val deaths = if (deathsColPosition >= formattedLine.size) 0 else formattedLine(deathsColPosition).toLong
-        val recovered = if (recoveredColPosition >= formattedLine.size) 0 else formattedLine(recoveredColPosition).toLong
+        val confirmed = if (confirmedColPosition >= formattedLine.size) 0 else if (formattedLine(confirmedColPosition).isEmpty) 0 else formattedLine(confirmedColPosition).toLong
+        val deaths = if (deathsColPosition >= formattedLine.size) 0 else if (formattedLine(deathsColPosition).isEmpty) 0 else formattedLine(deathsColPosition).toLong
+        val recovered = if (recoveredColPosition >= formattedLine.size) 0 else if (formattedLine(recoveredColPosition).isEmpty) 0 else formattedLine(recoveredColPosition).toLong
 
         // Handles different date and time formats
         var convertedDate = new Date()
