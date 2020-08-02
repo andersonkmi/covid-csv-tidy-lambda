@@ -5,7 +5,8 @@ import java.text.SimpleDateFormat
 import com.amazonaws.services.lambda.runtime.events.ScheduledEvent
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{DestinationS3Bucket, DestinationS3Prefix, NumberIterations}
-import org.codecraftlabs.aries.util.{CovidJsonRecord, CovidRecord, S3ObjectProcessor}
+import org.codecraftlabs.aries.util.DateTimeFormatters.{YYYY_MM_DD, YYYY_MM_DD_T_HH_MM_SS}
+import org.codecraftlabs.aries.util.{CovidJsonRecord, CovidRecord, DateTimeFormatters, S3ObjectProcessor}
 import org.codecraftlabs.aries.util.SQSUtil.{deleteMessages, getRecords}
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.jackson.Serialization.read
@@ -13,7 +14,6 @@ import org.json4s.jackson.Serialization.read
 import scala.util.Properties.envOrElse
 
 class CovidRecordExportLambda {
-  private val dateTimeFormatYYYY_MM_DD = new SimpleDateFormat("yyyy/MM/dd")
   private val logger: Logger = LogManager.getLogger(getClass)
 
   def processRecords(scheduleEvent: ScheduledEvent): String = {
@@ -32,9 +32,27 @@ class CovidRecordExportLambda {
     val bucket = envOrElse(DestinationS3Bucket, "")
     val prefix = envOrElse(DestinationS3Prefix, "")
     val convertedJson = read[CovidRecord](entry.contents)
-    val convertedDateTime = dateTimeFormatYYYY_MM_DD.format(convertedJson.lastUpdate)
-    val keyName = prefix + "/" + convertedDateTime + "/" + entry.messageId + ".json"
+    val convertedDateTime = YYYY_MM_DD.format(convertedJson.lastUpdate)
+    //val keyName = prefix + "/" + convertedDateTime + "/" + entry.messageId + ".json"
+    val keyName = prefix + "/" + convertedDateTime + "/" + generateKey(convertedJson)
     S3ObjectProcessor.writeObject(bucket, keyName, entry.contents)
     entry.receiptHandle
+  }
+
+  private def generateKey(record: CovidRecord): String = {
+    val buffer = new StringBuilder
+    buffer.append(record.country)
+    buffer.append("_")
+    buffer.append(record.stateProvince)
+    buffer.append("_")
+    buffer.append(YYYY_MM_DD_T_HH_MM_SS.format(record.lastUpdate))
+    buffer.append("_")
+    buffer.append(record.confirmed)
+    buffer.append("_")
+    buffer.append(record.deaths)
+    buffer.append("_")
+    buffer.append(record.recovered)
+    buffer.append(".json")
+    buffer.toString()
   }
 }
