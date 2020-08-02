@@ -41,9 +41,9 @@ class CovidRecordExportLambda {
 
   private def generateKey(record: CovidRecord): String = {
     val buffer = new StringBuilder
-    buffer.append(record.country)
+    buffer.append(record.country.replaceAll(" ", ""))
     buffer.append("_")
-    buffer.append(record.stateProvince)
+    buffer.append(record.stateProvince.replaceAll(" ", ""))
     buffer.append("_")
     buffer.append(YYYY_MM_DD_T_HH_MM_SS.format(record.lastUpdate))
     buffer.append("_")
