@@ -52,18 +52,8 @@ package:
 functions:
   aries:
     handler: org.codecraftlabs.aries.CovidCsvTidyLambda
-#    events:
-#      - s3:
-#          bucket: org.codecraftlabs.covid
-#          event: s3:ObjectCreated:*
-#          rules:
-#            - prefix: incoming/
-#            - suffix: .csv
-    memorySize: 512
-    timeout: 900
+    memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-tidy-lambda}
+    timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-tidy-lambda}
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
       FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}
-
-#plugins:
-#  - serverless-plugin-existing-s3

@@ -52,8 +52,8 @@ package:
 functions:
   aries:
     handler: org.codecraftlabs.aries.CovidRecordExportLambda::processRecords
-    memorySize: 512
-    timeout: 900
+    memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-export-lambda}
+    timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-export-lambda}
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
       FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}
