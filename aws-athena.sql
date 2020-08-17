@@ -2,9 +2,9 @@ CREATE EXTERNAL TABLE `covid`(
   `country` string COMMENT 'from deserializer',
   `stateprovince` string COMMENT 'from deserializer',
   `lastupdate` string COMMENT 'from deserializer',
-  `confirmed` int COMMENT 'from deserializer',
-  `deaths` int COMMENT 'from deserializer',
-  `recovered` int COMMENT 'from deserializer')
+  `confirmed` bigint COMMENT 'from deserializer',
+  `deaths` bigint COMMENT 'from deserializer',
+  `recovered` bigint COMMENT 'from deserializer')
 PARTITIONED BY (
   `year` string,
   `month` string,
