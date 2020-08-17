@@ -1,15 +1,13 @@
 package org.codecraftlabs.aries
 
-import java.text.SimpleDateFormat
-
 import com.amazonaws.services.lambda.runtime.events.ScheduledEvent
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{DestinationS3Bucket, DestinationS3Prefix, NumberIterations}
-import org.codecraftlabs.aries.util.DateTimeFormatters.{YYYY_MM_DD, YYYY_MM_DD_T_HH_MM_SS}
-import org.codecraftlabs.aries.util.{CovidJsonRecord, CovidRecord, DateTimeFormatters, S3ObjectProcessor}
+import org.codecraftlabs.aries.util.DateTimeFormatters.{YYYY_MM_DD_T_HH_MM_SS, generateDateTimeInPartitionFormat}
 import org.codecraftlabs.aries.util.SQSUtil.{deleteMessages, getRecords}
-import org.json4s.{DefaultFormats, Formats}
+import org.codecraftlabs.aries.util.{CovidJsonRecord, CovidRecord, S3ObjectProcessor}
 import org.json4s.jackson.Serialization.read
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Properties.envOrElse
 
@@ -32,7 +30,7 @@ class CovidRecordExportLambda {
     val bucket = envOrElse(DestinationS3Bucket, "")
     val prefix = envOrElse(DestinationS3Prefix, "")
     val convertedJson = read[CovidRecord](entry.contents)
-    val convertedDateTime = YYYY_MM_DD.format(convertedJson.lastUpdate)
+    val convertedDateTime = generateDateTimeInPartitionFormat(convertedJson.lastUpdate)
     //val keyName = prefix + "/" + convertedDateTime + "/" + entry.messageId + ".json"
     val keyName = prefix + "/" + convertedDateTime + "/" + generateKey(convertedJson)
     S3ObjectProcessor.writeObject(bucket, keyName, entry.contents)
