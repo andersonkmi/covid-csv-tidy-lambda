@@ -18,7 +18,7 @@ STORED AS INPUTFORMAT
 OUTPUTFORMAT
   'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
 LOCATION
-  's3://org.codecraftlabs.test/stage001/'
+  's3://org.codecraftlabs.test/covid/'
 TBLPROPERTIES (
   'classification'='json',
   'compressionType'='none',
