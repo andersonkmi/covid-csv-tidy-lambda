@@ -1,7 +1,7 @@
 CREATE EXTERNAL TABLE `covid`(
   `country` string COMMENT 'from deserializer',
   `stateprovince` string COMMENT 'from deserializer',
-  `lastupdate` string COMMENT 'from deserializer',
+  `lastupdate` timestamp COMMENT 'from deserializer',
   `confirmed` bigint COMMENT 'from deserializer',
   `deaths` bigint COMMENT 'from deserializer',
   `recovered` bigint COMMENT 'from deserializer')

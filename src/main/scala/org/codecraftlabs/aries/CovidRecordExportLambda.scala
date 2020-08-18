@@ -3,7 +3,7 @@ package org.codecraftlabs.aries
 import com.amazonaws.services.lambda.runtime.events.ScheduledEvent
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{DestinationS3Bucket, DestinationS3Prefix, NumberIterations}
-import org.codecraftlabs.aries.util.DateTimeFormatters.{YYYY_MM_DD_T_HH_MM_SS, generateDateTimeInPartitionFormat}
+import org.codecraftlabs.aries.util.DateTimeFormatters.{YYYY_MM_DD_HH_MM_SS_SSS, YYYY_MM_DD_T_HH_MM_SS, generateDateTimeInPartitionFormat}
 import org.codecraftlabs.aries.util.SQSUtil.{deleteMessages, getRecords}
 import org.codecraftlabs.aries.util.{CovidJsonRecord, CovidRecord, S3ObjectProcessor}
 import org.json4s.jackson.Serialization.read
@@ -43,7 +43,8 @@ class CovidRecordExportLambda {
     buffer.append("_")
     buffer.append(record.stateProvince.replaceAll(" ", ""))
     buffer.append("_")
-    buffer.append(YYYY_MM_DD_T_HH_MM_SS.format(record.lastUpdate))
+    val convertedDate = YYYY_MM_DD_HH_MM_SS_SSS.parse(record.lastUpdate)
+    buffer.append(YYYY_MM_DD_T_HH_MM_SS.format(convertedDate))
     buffer.append("_")
     buffer.append(record.confirmed)
     buffer.append("_")

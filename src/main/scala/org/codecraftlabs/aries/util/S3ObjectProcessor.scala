@@ -9,7 +9,7 @@ import com.amazonaws.services.s3.model.{GetObjectRequest, ObjectMetadata, PutObj
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{FieldSeparator, FieldSeparatorDefaultValue}
 import org.codecraftlabs.aries.util.CovidCsvColumnNames._
-import org.codecraftlabs.aries.util.DateTimeFormatters.{MM_DD_YYYY_HHMM, YYYY_MM_DD_HH_MM_SS, YYYY_MM_DD_T_HH_MM_SS}
+import org.codecraftlabs.aries.util.DateTimeFormatters.{MM_DD_YYYY_HHMM, YYYY_MM_DD_HH_MM_SS, YYYY_MM_DD_HH_MM_SS_SSS, YYYY_MM_DD_T_HH_MM_SS}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Properties
@@ -64,7 +64,7 @@ object S3ObjectProcessor {
           convertedDate = YYYY_MM_DD_HH_MM_SS.parse(lastUpdate)
         }
 
-        val record = CovidRecord(countryName, stateProvince, convertedDate, confirmed, deaths, recovered)
+        val record = CovidRecord(countryName, stateProvince, YYYY_MM_DD_HH_MM_SS_SSS.format(convertedDate), confirmed, deaths, recovered)
         processedLines.addOne(record)
       }
 
