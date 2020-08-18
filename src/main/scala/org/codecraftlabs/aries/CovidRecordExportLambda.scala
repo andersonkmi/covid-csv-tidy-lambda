@@ -31,7 +31,6 @@ class CovidRecordExportLambda {
     val prefix = envOrElse(DestinationS3Prefix, "")
     val convertedJson = read[CovidRecord](entry.contents)
     val convertedDateTime = generateDateTimeInPartitionFormat(convertedJson.lastUpdate)
-    //val keyName = prefix + "/" + convertedDateTime + "/" + entry.messageId + ".json"
     val keyName = prefix + "/" + convertedDateTime + "/" + generateKey(convertedJson)
     S3ObjectProcessor.writeObject(bucket, keyName, entry.contents)
     entry.receiptHandle
