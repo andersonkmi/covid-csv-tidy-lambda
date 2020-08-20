@@ -57,5 +57,6 @@ functions:
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
       SEND_TO_SECONDARY_SQS: ${file(serverless-config-${opt:stage}.yaml):send-to-secondary-sqs}
+      DELAY_SECONDS: ${file(serverless-config-${opt:stage}.yaml):delay-seconds}
       SECONDARY_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):secondary-sqs-url}
       FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}

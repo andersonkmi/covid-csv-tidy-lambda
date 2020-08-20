@@ -10,4 +10,5 @@ object AWSLambdaEnvironment {
   val DestinationS3Prefix = "DESTINATION_S3_PREFIX"
   val SecondarySQSUrl = "SECONDARY_SQS_URL"
   val SendToSecondarySQS = "SEND_TO_SECONDARY_SQS"
+  val DelayInSeconds = "DELAY_SECONDS"
 }

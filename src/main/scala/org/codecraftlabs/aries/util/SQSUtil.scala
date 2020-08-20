@@ -3,7 +3,7 @@ package org.codecraftlabs.aries.util
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder
 import com.amazonaws.services.sqs.model.{AmazonSQSException, SendMessageRequest}
 import org.apache.logging.log4j.LogManager
-import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{RecordSQSUrl, SecondarySQSUrl}
+import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{RecordSQSUrl, SecondarySQSUrl, DelayInSeconds}
 import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, Formats}
 
@@ -18,15 +18,16 @@ object SQSUtil {
 
   def enqueue(record: CovidRecord): Unit = {
     try {
+      val delaySeconds = envOrElse(DelayInSeconds, "5").toInt
       val json = write(record)
-      val sqsMessageRequest = new SendMessageRequest().withQueueUrl(envOrElse(RecordSQSUrl, "")).withMessageBody(json).withDelaySeconds(5)
+      val sqsMessageRequest = new SendMessageRequest().withQueueUrl(envOrElse(RecordSQSUrl, "")).withMessageBody(json).withDelaySeconds(delaySeconds)
       val result = sqsService.sendMessage(sqsMessageRequest)
       logger.info(s"Information sent to queue: message_id = '${result.getMessageId}'; md5_body = '${result.getMD5OfMessageBody}'")
 
       // Sending the covid record to secondary queue
       val sendToSecondarySQS = envOrElse(SecondarySQSUrl, "")
       if (sendToSecondarySQS.equals("true")) {
-        val sqsMessageSecondaryRequest = new SendMessageRequest().withQueueUrl(envOrElse(SecondarySQSUrl, "")).withMessageBody(json).withDelaySeconds(5)
+        val sqsMessageSecondaryRequest = new SendMessageRequest().withQueueUrl(envOrElse(SecondarySQSUrl, "")).withMessageBody(json).withDelaySeconds(delaySeconds)
         val secondaryResult = sqsService.sendMessage(sqsMessageSecondaryRequest)
         logger.info(s"Information sent to secondary queue: message_id = '${secondaryResult.getMessageId}'; md5_body = '${secondaryResult.getMD5OfMessageBody}'")
       }
