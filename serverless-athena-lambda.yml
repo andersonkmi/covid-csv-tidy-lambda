@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: covid-record-export-lambda
+service: athena-partition-update-lambda
 # app and org for use with dashboard.serverless.com
 #app: your-app-name
 #org: your-org-name
@@ -51,12 +51,9 @@ package:
 
 functions:
   aries:
-    handler: org.codecraftlabs.aries.CovidRecordExportLambda::processRecords
-    memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-export-lambda}
-    timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-export-lambda}
+    handler: org.codecraftlabs.aries.AthenaPartitionUpdateLambda
+    memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-tidy-lambda}
+    timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-tidy-lambda}
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
-      FIELD_SEPARATOR: ${file(serverless-config-${opt:stage}.yaml):field-separator}
-      NUMBER_ITERATIONS: ${file(serverless-config-${opt:stage}.yaml):number-iterations}
-      DESTINATION_S3_BUCKET: ${file(serverless-config-${opt:stage}.yaml):destination-s3-bucket}
-      DESTINATION_S3_PREFIX: ${file(serverless-config-${opt:stage}.yaml):destination-s3-prefix}
+      SEND_TO_SECONDARY_SQS: ${file(serverless-config-${opt:stage}.yaml):send-to-secondary-sqs}

@@ -8,7 +8,7 @@ scalaVersion := "2.13.1"
 releaseNextVersion := { ver =>
   Version(ver).map(_.bumpMinor.string).getOrElse("Error")
 }
-assemblyJarName in assembly := "covid-csv-tidy-lambda.jar"
+assemblyJarName in assembly := "covid-csv-lambdas.jar"
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-events" % "2.2.7",
