@@ -33,6 +33,11 @@ The following fields need to be configured:
 - destination-s3-prefix
 - vpc-security-group-ids
 - vpc-subnet-ids
+- send-to-secondary-sqs
+- secondary-sqs-url
+- delay-seconds
+- timeout-tidy-lambda
+- timeout-export-lambda
 
 ## How to deploy/remove the CSV tidy lambda function
 
@@ -60,6 +65,14 @@ In order to remove the export lambda function, run the following command:
 
 ```
 $ sls remove --stage dev --config serverless-export-lambda.yml
+```
+
+## AWS Athena
+
+In order to create the table inside AWS Athena, use the SQL script in the project. You need first to create a database that will hold such table.
+
+```
+aws-athena/aws-athena.sql
 ```
 
 ## References
