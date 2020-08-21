@@ -19,5 +19,9 @@ class AthenaPartitionUpdateLambda extends RequestHandler [S3Event, String] {
   private def processItem(event: S3EventNotificationRecord): Unit = {
     val key = event.getS3.getObject.getKey
     logger.info("Key: " + key)
+    val fields = key.split("/")
+    logger.info("Year: " + fields(1))
+    logger.info("Month: " + fields(2))
+    logger.info("Day: " + fields(3))
   }
 }

@@ -52,8 +52,8 @@ package:
 functions:
   aries:
     handler: org.codecraftlabs.aries.AthenaPartitionUpdateLambda
-    memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-tidy-lambda}
-    timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-tidy-lambda}
+    memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-athena-lambda}
+    timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-athena-lambda}
     environment:
       RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
       SEND_TO_SECONDARY_SQS: ${file(serverless-config-${opt:stage}.yaml):send-to-secondary-sqs}
