@@ -20,8 +20,8 @@ class AthenaPartitionUpdateLambda extends RequestHandler [S3Event, String] {
     val key = event.getS3.getObject.getKey
     logger.info("Key: " + key)
     val fields = key.split("/")
-    logger.info("Year: " + fields(1))
-    logger.info("Month: " + fields(2))
-    logger.info("Day: " + fields(3))
+    logger.info("Year: " + fields(1).split("%3D")(1))
+    logger.info("Month: " + fields(2).split("%3D")(1))
+    logger.info("Day: " + fields(3).split("%3D")(1))
   }
 }
