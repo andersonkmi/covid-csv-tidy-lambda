@@ -9,7 +9,7 @@ import org.codecraftlabs.aries.util.SQSUtil.enqueue
 
 import scala.jdk.CollectionConverters._
 
-class CovidCsvTidyLambda extends RequestHandler [S3Event, String]{
+class CovidCsvTidyLambda extends RequestHandler [S3Event, String] {
   private val logger: Logger = LogManager.getLogger(getClass)
 
   override def handleRequest(input: S3Event, context: Context): String = {
