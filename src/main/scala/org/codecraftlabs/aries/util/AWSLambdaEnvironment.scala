@@ -13,4 +13,7 @@ object AWSLambdaEnvironment {
   val DelayInSeconds = "DELAY_SECONDS"
   val CovidAthenaDatabase = "COVID_ATHENA_DATABASE"
   val CovidTable = "COVID_TABLE"
+  val AthenaResultS3Bucket = "ATHENA_RESULT_S3_BUCKET"
+  val AthenaResultS3Prefix = "ATHENA_RESULT_S3_PREFIX"
+  val SleepTimeInMs = "SLEEP_TIME_IN_MS"
 }

@@ -52,7 +52,7 @@ package:
 
 functions:
   aries:
-    handler: org.codecraftlabs.aries.AthenaPartitionUpdateLambda
+    handler: org.codecraftlabs.aries.AthenaPartitionUpdateLambda::handleRequest
     memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-athena-lambda}
     timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-athena-lambda}
     environment:
@@ -60,3 +60,6 @@ functions:
       COVID_TABLE: ${file(serverless-config-${opt:stage}.yaml):covid-table}
       DESTINATION_S3_BUCKET: ${file(serverless-config-${opt:stage}.yaml):destination-s3-bucket}
       DESTINATION_S3_PREFIX: ${file(serverless-config-${opt:stage}.yaml):destination-s3-prefix}
+      ATHENA_RESULT_S3_BUCKET: ${file(serverless-config-${opt:stage}.yaml):athena-result-s3-bucket}
+      ATHENA_RESULT_S3_PREFIX: ${file(serverless-config-${opt:stage}.yaml):athena-result-s3-prefix}
+      SLEEP_TIME_IN_MS: ${file(serverless-config-${opt:stage}.yaml):sleep-time-in-ms}

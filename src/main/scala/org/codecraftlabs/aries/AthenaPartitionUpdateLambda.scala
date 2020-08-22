@@ -1,30 +1,26 @@
 package org.codecraftlabs.aries
 
-import com.amazonaws.services.lambda.runtime.events.S3Event
-import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
-import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRecord
+import com.amazonaws.services.lambda.runtime.events.ScheduledEvent
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{CovidAthenaDatabase, CovidTable, DestinationS3Bucket, DestinationS3Prefix}
+import org.codecraftlabs.aries.util.AthenaUtil.executeQuery
 
-import scala.jdk.CollectionConverters._
 import scala.util.Properties
 
-class AthenaPartitionUpdateLambda extends RequestHandler [S3Event, String] {
+class AthenaPartitionUpdateLambda {
   private val logger: Logger = LogManager.getLogger(getClass)
 
-  override def handleRequest(input: S3Event, context: Context): String = {
+  def handleRequest(scheduleEvent: ScheduledEvent): String = {
     logger.info("Starting Athena partition update lambda")
-    input.getRecords.asScala.foreach(processItem)
+    val dateTime = scheduleEvent.getTime
+    val year = dateTime.getYear.toString
+    val month = dateTime.toString("MM")
+    val day = dateTime.toString("dd")
+    processPartition(year, month, day)
     "Done"
   }
 
-  private def processItem(event: S3EventNotificationRecord): Unit = {
-    val key = event.getS3.getObject.getKey
-    val fields = key.split("/")
-    val year = fields(1).split("%3D")(1)
-    val month = fields(2).split("%3D")(1)
-    val day = fields(3).split("%3D")(1)
-
+  private def processPartition(year: String, month: String, day: String): Unit = {
     val path = "year=" + year + "/month=" + month + "/day=" + day + "/"
     val covidDatabase = Properties.envOrNone(CovidAthenaDatabase)
     val covidTable = Properties.envOrNone(CovidTable)
@@ -32,8 +28,8 @@ class AthenaPartitionUpdateLambda extends RequestHandler [S3Event, String] {
     if (covidDatabase.isDefined && covidTable.isDefined) {
       val s3Bucket = Properties.envOrElse(DestinationS3Bucket, "")
       val s3Prefix = Properties.envOrElse(DestinationS3Prefix, "")
-      val statement = "ALTER TABLE " + covidTable.get + " ADD IF NOT EXISTS PARTITION (year = '" + year + ", month = '" + month + "', day ='" + day +  "') LOCATION 's3://" + s3Bucket + "/" + s3Prefix + "/" + path + "'"
-      logger.info("Athena statement: " + statement)
+      val statement = "ALTER TABLE `" + covidDatabase.get + "`.`" + covidTable.get + "` ADD IF NOT EXISTS PARTITION (year = '" + year + ", month = '" + month + "', day ='" + day +  "') LOCATION 's3://" + s3Bucket + "/" + s3Prefix + "/" + path + "'"
+      executeQuery(statement)
     }
   }
 }

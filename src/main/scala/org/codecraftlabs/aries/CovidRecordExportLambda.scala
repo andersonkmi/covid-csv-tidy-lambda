@@ -16,6 +16,7 @@ class CovidRecordExportLambda {
 
   def processRecords(scheduleEvent: ScheduledEvent): String = {
     val numberIterations = envOrElse(NumberIterations, "10").toInt
+    logger.info("Date/time: " + scheduleEvent.getTime)
     logger.info(s"Number of iterations - $numberIterations")
     for (_ <- 0 until numberIterations) {
       val items = getRecords
