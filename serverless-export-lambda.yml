@@ -22,6 +22,7 @@ service: covid-record-export-lambda
 
 provider:
   name: aws
+  versionFunctions: false
   runtime: java8
   deploymentBucket:
     name: ${file(serverless-config-${opt:stage}.yaml):deploy-bucket}

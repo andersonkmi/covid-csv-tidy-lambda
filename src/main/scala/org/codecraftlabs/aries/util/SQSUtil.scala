@@ -3,7 +3,7 @@ package org.codecraftlabs.aries.util
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder
 import com.amazonaws.services.sqs.model.{AmazonSQSException, SendMessageRequest}
 import org.apache.logging.log4j.LogManager
-import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{RecordSQSUrl, SecondarySQSUrl, DelayInSeconds}
+import org.codecraftlabs.aries.util.AWSLambdaEnvironment.{DelayInSeconds, RecordSQSUrl, SecondarySQSUrl, SendToSecondarySQS}
 import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, Formats}
 
@@ -25,7 +25,7 @@ object SQSUtil {
       logger.info(s"Information sent to queue: message_id = '${result.getMessageId}'; md5_body = '${result.getMD5OfMessageBody}'")
 
       // Sending the covid record to secondary queue
-      val sendToSecondarySQS = envOrElse(SecondarySQSUrl, "")
+      val sendToSecondarySQS = envOrElse(SendToSecondarySQS, "")
       if (sendToSecondarySQS.equals("true")) {
         val sqsMessageSecondaryRequest = new SendMessageRequest().withQueueUrl(envOrElse(SecondarySQSUrl, "")).withMessageBody(json).withDelaySeconds(delaySeconds)
         val secondaryResult = sqsService.sendMessage(sqsMessageSecondaryRequest)

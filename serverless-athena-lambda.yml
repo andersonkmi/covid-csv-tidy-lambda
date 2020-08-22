@@ -22,6 +22,7 @@ service: athena-partition-update-lambda
 
 provider:
   name: aws
+  versionFunctions: false
   runtime: java8
   deploymentBucket:
     name: ${file(serverless-config-${opt:stage}.yaml):deploy-bucket}
@@ -55,5 +56,5 @@ functions:
     memorySize: ${file(serverless-config-${opt:stage}.yaml):memory-size-mb-athena-lambda}
     timeout: ${file(serverless-config-${opt:stage}.yaml):timeout-athena-lambda}
     environment:
-      RECORD_SQS_URL: ${file(serverless-config-${opt:stage}.yaml):record-sqs-url}
-      SEND_TO_SECONDARY_SQS: ${file(serverless-config-${opt:stage}.yaml):send-to-secondary-sqs}
+      COVID_ATHENA_DATABASE: ${file(serverless-config-${opt:stage}.yaml):covid-athena-database}
+      COVID_TABLE: ${file(serverless-config-${opt:stage}.yaml):covid-table}

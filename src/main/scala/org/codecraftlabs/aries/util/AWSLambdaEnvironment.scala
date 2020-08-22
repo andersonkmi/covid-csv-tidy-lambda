@@ -11,4 +11,6 @@ object AWSLambdaEnvironment {
   val SecondarySQSUrl = "SECONDARY_SQS_URL"
   val SendToSecondarySQS = "SEND_TO_SECONDARY_SQS"
   val DelayInSeconds = "DELAY_SECONDS"
+  val CovidAthenaDatabase = "COVID_ATHENA_DATABASE"
+  val CovidTable = "COVID_TABLE"
 }
