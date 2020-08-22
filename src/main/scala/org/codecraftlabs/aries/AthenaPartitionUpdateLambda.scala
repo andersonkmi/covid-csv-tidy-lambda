@@ -32,7 +32,7 @@ class AthenaPartitionUpdateLambda extends RequestHandler [S3Event, String] {
     if (covidDatabase.isDefined && covidTable.isDefined) {
       val s3Bucket = Properties.envOrElse(DestinationS3Bucket, "")
       val s3Prefix = Properties.envOrElse(DestinationS3Prefix, "")
-      val statement = "ALTER TABLE " + covidTable.get + " ADD PARTITION (year = '" + year + ", month = '" + month + "', day ='" + day +  "') LOCATION 's3://" + s3Bucket + "/" + s3Prefix + "/" + path + "'"
+      val statement = "ALTER TABLE " + covidTable.get + " ADD IF NOT EXISTS PARTITION (year = '" + year + ", month = '" + month + "', day ='" + day +  "') LOCATION 's3://" + s3Bucket + "/" + s3Prefix + "/" + path + "'"
       logger.info("Athena statement: " + statement)
     }
   }

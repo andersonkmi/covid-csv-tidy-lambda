@@ -58,3 +58,5 @@ functions:
     environment:
       COVID_ATHENA_DATABASE: ${file(serverless-config-${opt:stage}.yaml):covid-athena-database}
       COVID_TABLE: ${file(serverless-config-${opt:stage}.yaml):covid-table}
+      DESTINATION_S3_BUCKET: ${file(serverless-config-${opt:stage}.yaml):destination-s3-bucket}
+      DESTINATION_S3_PREFIX: ${file(serverless-config-${opt:stage}.yaml):destination-s3-prefix}
