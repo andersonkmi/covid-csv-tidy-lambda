@@ -19,7 +19,7 @@ class CovidRecordExportLambda {
     logger.info(s"Number of iterations - $numberIterations")
     for (_ <- 0 until numberIterations) {
       val items = getRecords
-      val messageHandles = items.map(item => processRecord(item))
+      val messageHandles = items.map(processRecord)
       deleteMessages(messageHandles)
     }
     "Ok"
