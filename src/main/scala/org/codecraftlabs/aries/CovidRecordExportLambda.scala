@@ -14,7 +14,7 @@ import scala.util.Properties.envOrElse
 class CovidRecordExportLambda {
   private val logger: Logger = LogManager.getLogger(getClass)
 
-  def processRecords(scheduleEvent: ScheduledEvent): String = {
+  def processRecords(scheduleEvent: ScheduledEvent): Unit = {
     val numberIterations = envOrElse(NumberIterations, "10").toInt
     logger.info("Date/time: " + scheduleEvent.getTime)
     logger.info(s"Number of iterations - $numberIterations")
@@ -23,7 +23,6 @@ class CovidRecordExportLambda {
       val messageHandles = items.map(processRecord)
       deleteMessages(messageHandles)
     }
-    "Ok"
   }
 
   private def processRecord(entry: CovidJsonRecord): String = {
