@@ -1,4 +1,4 @@
-# COVID CSV files tidy and export lambda
+# COVID CSV files pipeline lambdas
 
 This is another project my mine to practice some AWS services (AWS Lambda, S3, Serverless framework, SQS and Athena)
 
@@ -6,6 +6,12 @@ AWS Lambda for processing and tidying CSV files with COVID data to standardize d
 columns to play with.
 
 The source code developed was based on the CSV format provided by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University. See References section for more information.
+
+## Architecture
+
+A diagram of the architecture is as follows:
+
+![alt text](https://github.com/andersonkmi/covid-csv-tidy-lambda/raw/master/img/architecture.jpg "Architecture")
 
 ## How to build
 
