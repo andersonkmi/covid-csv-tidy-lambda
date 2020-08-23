@@ -67,6 +67,20 @@ In order to remove the export lambda function, run the following command:
 $ sls remove --stage dev --config serverless-export-lambda.yml
 ```
 
+## How to deploy/remove the partition update lambda function
+
+In order to deploy the partition update lambda function, run the following command:
+
+```
+$ sls deploy --stage dev --config serverless-athena-lambda.yml
+```
+
+In order to remove the partition update lambda function, run the following command:
+
+```
+$ sls remove --stage dev --config serverless-athena-lambda.yml
+```
+
 ## AWS Athena
 
 In order to create the table inside AWS Athena, use the SQL script in the project. You need first to create a database that will hold such table.
