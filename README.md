@@ -11,7 +11,7 @@ The source code developed was based on the CSV format provided by the Center for
 
 A diagram of the architecture is as follows:
 
-![alt text](https://github.com/andersonkmi/covid-csv-tidy-lambda/raw/master/img/architecture.jpg "Architecture")
+![alt text](https://github.com/andersonkmi/covid-csv-tidy-lambda/raw/master/img/sandbox-mki.jpg "Architecture")
 
 ## How to build
 
