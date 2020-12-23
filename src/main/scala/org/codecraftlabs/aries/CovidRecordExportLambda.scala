@@ -12,10 +12,11 @@ import org.json4s.{DefaultFormats, Formats}
 import scala.util.Properties.envOrElse
 
 class CovidRecordExportLambda {
+  private val DefaultIterations: String =  "10"
   private val logger: Logger = LogManager.getLogger(getClass)
 
   def processRecords(scheduleEvent: ScheduledEvent): Unit = {
-    val numberIterations = envOrElse(NumberIterations, "10").toInt
+    val numberIterations = envOrElse(NumberIterations, DefaultIterations).toInt
     logger.info("Date/time: " + scheduleEvent.getTime)
     logger.info(s"Number of iterations - $numberIterations")
     for (_ <- 0 until numberIterations) {
