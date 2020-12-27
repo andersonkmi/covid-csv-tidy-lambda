@@ -11,6 +11,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Properties.envOrElse
 
 object SQSUtil {
+  private val DefaultDelayInSeconds: String = "5"
   protected implicit lazy val jsonFormats: Formats = DefaultFormats
   private val logger = LogManager.getLogger(getClass)
 
@@ -18,7 +19,7 @@ object SQSUtil {
 
   def enqueue(record: CovidRecord): Unit = {
     try {
-      val delaySeconds = envOrElse(DelayInSeconds, "5").toInt
+      val delaySeconds = envOrElse(DelayInSeconds, DefaultDelayInSeconds).toInt
       val json = write(record)
       val sqsMessageRequest = new SendMessageRequest().withQueueUrl(envOrElse(RecordSQSUrl, "")).withMessageBody(json).withDelaySeconds(delaySeconds)
       val result = sqsService.sendMessage(sqsMessageRequest)
